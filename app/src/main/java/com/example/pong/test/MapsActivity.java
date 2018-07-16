@@ -125,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             xyz[0]=map_data.getdata4();
             xyz[1]=map_data.getdata5();
             xyz[2]=map_data.getdata6();
-            web_data=map_data.getdata7();
+            web_data=map_data.getdata7();//抓出網頁的值
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
             map_level.setText("Level:" +str_level );
@@ -158,7 +158,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         OkHttpClient.Builder mBuilder = new OkHttpClient.Builder();
         mBuilder.sslSocketFactory(createSSLSocketFactory());
         mBuilder.hostnameVerifier(new TrustAllHostnameVerifier());
-        //
+
        OkHttpClient client = mBuilder.build(); //okhttp3函數庫(build.gradle加入 compile 'com.squareup.okhttp3:okhttp:3.6.0')
         String id = "106318047",result="";
         String emg;
@@ -184,10 +184,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             GlobalVariable map_data = (GlobalVariable)getApplicationContext();//建立全域變數物件
             String web_data=response.body().string();//抓到回傳的網頁資料,注意response.body()只能執行一次不然跑不出來
-            map_data.setdata4(web_data);//存入全域變數
+
             Log.d("測試","response.body().string(!!!!!!!!)："+web_data);
-            String userIdJiequ = web_data.substring(80,95);//指定字串範圍抓出
-            Log.d("測試","分割完以後的字串："+userIdJiequ);
+
+            String web_data_get = web_data.substring(80,95);//指定字串範圍抓出
+            Log.d("測試","分割完以後的字串："+web_data_get);
+            map_data.setdata4(web_data_get);//存入全域變數
 
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
