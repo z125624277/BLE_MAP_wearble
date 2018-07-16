@@ -45,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private Handler handler = new Handler(); //每秒定時執行的方法
-    public String str_level="",str2_rpm="",str3_gps="",str4_x="",str5_y="",str6_z="";//接收的LEVEL RPM字串
+    public String str_level="",str2_rpm="",str3_gps="",str4_x="",str5_y="",str6_z="",web_data="";//接收的LEVEL RPM字串
     private SensorManager sensorMgr; //感測器管理宣告
     private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
     private double currentLatitude = 0;
@@ -125,9 +125,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             xyz[0]=map_data.getdata4();
             xyz[1]=map_data.getdata5();
             xyz[2]=map_data.getdata6();
+            web_data=map_data.getdata7();
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
-            map_level.setText("Level:" + str_level);
+            map_level.setText("Level:" +str_level );
             map_rpm.setText("RPM:" + str2_rpm);
             handler.postDelayed(this, 1000);
             //傳送到PHP
@@ -153,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void doPostRequest(String level,String rpm,String gps,Float x,Float y,Float z) {
         //HttpClient httpClient = new DefaultHttpClient();
 
-        //沒經過驗證!
+        //沒經過驗證 就可以傳資料(方法在下方)!
         OkHttpClient.Builder mBuilder = new OkHttpClient.Builder();
         mBuilder.sslSocketFactory(createSSLSocketFactory());
         mBuilder.hostnameVerifier(new TrustAllHostnameVerifier());
@@ -177,11 +178,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Headers responseHeaders = response.headers();
             for (int i = 0; i < responseHeaders.size(); i++) {
-                System.out.println("測試responseHeaders.name:"+responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                //System.out.println("測試responseHeaders.name:"+responseHeaders.name(i) + ": " + responseHeaders.value(i));
                //顯示網頁類型、時間、編碼方式等等
             }
-            Log.d("測試","response.body().string()："+response.body().string());
-            System.out.println("測試:獲得回應的值"+response.body().string());
+
+            GlobalVariable map_data = (GlobalVariable)getApplicationContext();//建立全域變數物件
+            String web_data=response.body().string();//抓到回傳的網頁資料,注意response.body()只能執行一次不然跑不出來
+            map_data.setdata4(web_data);//存入全域變數
+            Log.d("測試","response.body().string(!!!!!!!!)："+web_data);
+            String userIdJiequ = web_data.substring(80,95);//指定字串範圍抓出
+            Log.d("測試","分割完以後的字串："+userIdJiequ);
+
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
             HttpEntity resEntity = response.getEntity();//判斷是否有回傳?或是連線狀態
@@ -273,14 +280,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    //
+    //讓SSL驗證全部信任的方法
     private static class TrustAllCerts implements X509TrustManager {
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
-
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
-
         @Override
         public X509Certificate[] getAcceptedIssuers() {return new X509Certificate[0];}
     }
@@ -292,17 +297,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
     private static SSLSocketFactory createSSLSocketFactory() {
         SSLSocketFactory ssfFactory = null;
-
         try {
             SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null,  new TrustManager[] { new TrustAllCerts() }, new SecureRandom());
-
             ssfFactory = sc.getSocketFactory();
         } catch (Exception e) {
         }
-
         return ssfFactory;
     }
-
+    //讓SSL驗證全部信任的方法
 
 }

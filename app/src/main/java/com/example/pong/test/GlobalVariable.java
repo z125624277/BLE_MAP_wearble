@@ -6,7 +6,7 @@ import android.app.Application;
  * Created by PONG on 2017/12/16.
  */
 public class GlobalVariable extends Application {
-    public String level="",rpm="",gps="";     //要傳送的字串
+    public String level="",rpm="",gps="",web_data="";     //要傳送的字串
     public Float x=0.0f,y=0.0f,z=0.0f;
     //修改 變數字串
     public void setdata(String word,String word2){
@@ -20,6 +20,9 @@ public class GlobalVariable extends Application {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+    public void setdata4(String word4){
+        this.web_data = word4;
     }
     //顯示 (取出)變數字串
     public String getdata() {
@@ -45,5 +48,7 @@ public class GlobalVariable extends Application {
     public Float getdata6(){
         return z;
     }
-
+    public String getdata7(){
+        return web_data;
+    }
 }

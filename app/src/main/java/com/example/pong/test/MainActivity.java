@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    show("搜尋中....");
+                    //show("搜尋中....");
                     Log.d("測試:","搜尋中");
                             //SBC21120054為藍芽設備名稱  //D2 01 11 F9 8F B3 //00:08:F4:01:8A:12舊的
                     if(device.getAddress().equals("00:08:F4:01:8A:12")==true ) {
