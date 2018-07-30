@@ -55,7 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final int LOCATION_UPDATE_MIN_TIME = 1000;//多少時間(毫秒)
 
 
-    @Override
+    @Override//
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -98,7 +98,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
     @Override
-    protected void onResume(){
+    protected void onResume(){//當頁面離開再回來會執行此方法來刷新
         super.onResume();
         sensorMgr.registerListener(listener,//註冊監聽
                 sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),//感測器種類(加速度)
@@ -181,7 +181,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //System.out.println("測試responseHeaders.name:"+responseHeaders.name(i) + ": " + responseHeaders.value(i));
                //顯示網頁類型、時間、編碼方式等等
             }
-
             GlobalVariable map_data = (GlobalVariable)getApplicationContext();//建立全域變數物件
             String web_data=response.body().string();//抓到回傳的網頁資料,注意response.body()只能執行一次不然跑不出來
 

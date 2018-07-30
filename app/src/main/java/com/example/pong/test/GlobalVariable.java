@@ -6,6 +6,7 @@ import android.app.Application;
  * Created by PONG on 2017/12/16.
  */
 public class GlobalVariable extends Application {
+    //GlobalVariable繼承 Application
     public String level="",rpm="",gps="",web_data="";     //要傳送的字串
     public Float x=0.0f,y=0.0f,z=0.0f;
     //修改 變數字串
