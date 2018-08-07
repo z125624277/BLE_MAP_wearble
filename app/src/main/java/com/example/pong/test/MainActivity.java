@@ -31,10 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> deviceName;//未使用
     public BluetoothGatt mBluetoothGatt=null;
     public String str="",str2="";
-    private static final String serviceid = "0000AAAA-0000-1000-8000-00805f9b34fb";//0000AAAA-0000-1000-8000-00805f9b34fb //6e400001-b5a3-f393-e0a9-e50e24dcca9e
+    private static final String serviceid = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";//0000AAAA-0000-1000-8000-00805f9b34fb //6e400001-b5a3-f393-e0a9-e50e24dcca9e
     private static final String charaid   = "0000AAAD-0000-1000-8000-00805f9b34fb";
-    private static final String notifyid  = "0000AAAC-0000-1000-8000-00805f9b34fb";//0000AAAC-0000-1000-8000-00805f9b34fb //6e400003-b5a3-f393-e0a9-e50e24dcca9e
-    private static final String writeid   = "0000AAAB-0000-1000-8000-00805F9B34FB";//0000AAAB-0000-1000-8000-00805F9B34FB //6e400002-b5a3-f393-e0a9-e50e24dcca9e
+    private static final String notifyid  = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";//0000AAAC-0000-1000-8000-00805f9b34fb //6e400003-b5a3-f393-e0a9-e50e24dcca9e
+    private static final String writeid   = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";//0000AAAB-0000-1000-8000-00805F9B34FB //6e400002-b5a3-f393-e0a9-e50e24dcca9e
     private static final String descrid  =  "00002902-0000-1000-8000-00805f9b34fb";//00002902-0000-1000-8000-00805f9b34fb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     show("搜尋中....");
                     Log.d("測試:","搜尋中");
-                            //SBC21120054為藍芽設備名稱  //D2 01 11 F9 8F B3 //00:08:F4:01:8A:12舊的
-                    if(device.getAddress().equals("00:08:F4:01:8A:12")==true ) {
+                            //SBC21120054為藍芽設備名稱  //(好的D3 30 0F 06 D6 4B) 壞掉:D2 01 11 F9 8F B3 //00:08:F4:01:8A:12舊的
+                    if(device.getAddress().equals("D3:30:0F:06:D6:4B")==true ) {
                         /**********************要連接的設備放到listview*******************************/
                         deviceName.add(device.getName() + "\n" + device.getAddress());
                         ListView listview = (ListView) findViewById(R.id.listview);
