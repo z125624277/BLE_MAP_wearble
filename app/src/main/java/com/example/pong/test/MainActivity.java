@@ -146,8 +146,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 h = h + temp;
             }*/
-             h = Integer.toHexString(arrayOfByte[0] & 0xFF);//Level 把帶入的數字回傳16進制
-             h1 = Integer.toHexString(arrayOfByte[1] & 0xFF);//RPM
+             h = Integer.toHexString(arrayOfByte[2] & 0xFF);//Level 把帶入的數字回傳16進制
+             h1 = Integer.toHexString(arrayOfByte[3] & 0xFF);//RPM
 
             Log.e("測試", " H1 收到: " + h+"  H1 收到: "+h1);
 
