@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity {
         public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             Log.d("測試:","進入!通知onCharacteristicChanged收到的值:"+characteristic.getValue());
             byte[] arrayOfByte = characteristic.getValue();//arrayOfByte.length=2
-            String h = "";
-            String h1 = "";
+            String h = "";//Level變數
+            String h1 = "";//RPM變數
             /*for(int i = 0; i < arrayOfByte.length; i++){
                 String temp = Integer.toHexString(arrayOfByte[i] & 0xFF);
                 if(temp.length() == 1){
@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
             str=Integer.valueOf(h,16).toString();//應該是將16進制轉成10進制的字串
             str2=Integer.valueOf(h1,16).toString();
+
             Log.e("測試", " str 收到: " + str+"  str2 收到: "+ str2);
             runOnUiThread(new Runnable() {
                 @Override
@@ -191,8 +192,17 @@ public class MainActivity extends AppCompatActivity {
     public void receivedata(){
         TextView rec_data=(TextView) findViewById(R.id.textView);
         TextView rec_data2=(TextView) findViewById(R.id.textView2);
-        rec_data.setText("Level: "+str);
-        rec_data2.setText("RPM: "+str2);
+        //加入判斷如果RPM=130則顯示 " - "號表示不穩定(若不穩定感測器會送130)
+            if(Integer.valueOf(str) ==130) {//Integer.valueOf()將字串轉為十進制才能和130整數比較
+                rec_data.setText("Level: --");
+            }else{
+                rec_data.setText("Level: " + str);
+            }
+            if(Integer.valueOf(str2) ==130 ){//Integer.valueOf()將字串轉為十進制才能和130整數比較
+                rec_data2.setText("RPM: --");
+            }else{
+                rec_data2.setText("RPM: " + str2);
+            }
         GlobalVariable map_data = (GlobalVariable)getApplicationContext();//全域變數設定
             map_data.setdata(str,str2);//傳送level 和 Rpm到全域變數
     }

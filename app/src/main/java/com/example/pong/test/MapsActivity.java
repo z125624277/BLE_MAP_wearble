@@ -76,7 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-    //建立監聽(感測)物件並得到數值
+    //建立監聽(感測)物件並得到數值x,y,z三軸加速度
     SensorEventListener listener =new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
@@ -136,8 +136,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void run() {
                     try {
-                        str_level="100";//暫用
-                        str2_rpm="999";//暫用
+                        //str_level="100";//暫用
+                        //str2_rpm="999";//暫用
                         //str3_gps="24.159455,120 .693808";//暫用
                         str3_gps=str3_gps.replace(" ","");//去除空格
 
@@ -166,7 +166,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             String url="https://lab416.hopto.org/?";// http://121.254.77.25:8080/helloword.php/? http://163.17.21.131/helloword.php/?(校)
             //https://lab416.hopto.org/?uuid=106318047&gps=1&rpm=2&emg=3&g=4
-            String url_data=url+"uuid="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg+"&g="+x/*+"&y="+y+"&z="+z*/;//Y Z 未接收
+            String url_data=url+"uuid="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg+"&g="+x+"&y="+y+"&z="+z;//Y Z 未接收
             Log.d("測試","GET傳送的網址:"+url_data);
             Request request = new Request.Builder()
                     .url(url_data)
