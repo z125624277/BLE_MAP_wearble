@@ -14,23 +14,29 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
+    List<BluetoothDevice> deviceList = new ArrayList<>();
+    public int i=0;
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private int REQUEST_ENABLE_BT=1;//打開藍芽常數intent
     private int ENABLE_INDICATION_VALUE=1;
     private Handler mHandler= new Handler();//未使用
     Boolean  mScanning=true;//判斷掃描狀態布林變數
-    private ArrayAdapter<String> deviceName;//未使用
+    private ArrayAdapter<String> deviceName;
     public BluetoothGatt mBluetoothGatt=null;
     public String str="",str2="";
+    public String[] vData =new String[100];//給掃描到的裝置暫存資料
     private static final String serviceid = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";//0000AAAA-0000-1000-8000-00805f9b34fb //6e400001-b5a3-f393-e0a9-e50e24dcca9e
     private static final String charaid   = "0000AAAD-0000-1000-8000-00805f9b34fb";
     private static final String notifyid  = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";//0000AAAC-0000-1000-8000-00805f9b34fb //6e400003-b5a3-f393-e0a9-e50e24dcca9e
@@ -65,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索
         }
     }
+
     /*************************************掃描的Call Back****************************************/
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
@@ -72,22 +79,47 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    show("搜尋中....");
+                    //show("搜尋中....");
                     Log.d("測試:","搜尋中");
-                            //SBC21120054為藍芽設備名稱  //(好的D3 30 0F 06 D6 4B) 壞掉:D2 01 11 F9 8F B3 //00:08:F4:01:8A:12舊的
-                    if(device.getAddress().equals("D3:30:0F:06:D6:4B")==true ) {
-                        /**********************要連接的設備放到listview*******************************/
+
+                    ListView listview = (ListView) findViewById(R.id.listview);
+                    if (!deviceList.contains(device)) {
+                        //将设备加入列表数据中
+                        deviceList.add(device);
                         deviceName.add(device.getName() + "\n" + device.getAddress());
-                        ListView listview = (ListView) findViewById(R.id.listview);
-                        listview.setAdapter(deviceName);
+                        vData[i]=device.getAddress();
+                        i++;
+                    }
+                    listview.setAdapter(deviceName);
+
+                    //以下獲取listview的點擊
+                    listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parnet, android.view.View v, final int position, long id) {
+                            Log.d("position","deviceName: "+vData[position]);
+                            Log.d("position", String.valueOf(position));
+                            String bleAddress =vData[position];//要連接的裝置~要能依照listview的選擇而變
+                            BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress);
+                            show("嘗試連接...:"+vData[position]);
+                            /************************啟動連接*************************************/
+                            mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,false,mGattCallback);//啟動連接
+                            Log.d("測試:","進入連接藍芽call back!");
+                        }
+                    });
+
+                    //SBC21120054為藍芽設備名稱  //(黃傑 DA 3A 0E 47 21 68)(學弟的D3 30 0F 06 D6 4B)  //00:08:F4:01:8A:12舊的
+                    //以下暫時用不到................
+                    if(device.getAddress().equals("DA:3A:0E:47:21:68")==true ) {
+                        /**********************要連接的設備放到listview*******************************/
+
                         /**************************停止搜尋**************************************/
                         mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索 ~關閉掃描~~
-                        String bleAddress = device.getAddress();
+                        String bleAddress = device.getAddress();//要連接的裝置~要能依照listview的選擇而變
                         BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress);
                         show("嘗試連接...:"+device);
                         /************************啟動連接*************************************/
                        mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,false,mGattCallback);//啟動連接
-                        Log.d("測試:","進入連接藍芽call back!");
+                       // Log.d("測試:","進入連接藍芽call back!");
                     }
                 }
             });
@@ -228,9 +260,12 @@ public class MainActivity extends AppCompatActivity {
                 //intent.putExtra("LEVEL",str);
                 this.startActivity(intent);
                 break;
+            case R.id.btn_stop:
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索
+                Toast.makeText(this, "Scan Stop", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
-
 
 
 }
