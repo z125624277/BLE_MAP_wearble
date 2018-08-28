@@ -44,6 +44,7 @@ import okhttp3.Response;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private GoogleMap mMap_1;//其他定位人員?
     private Handler handler = new Handler(); //每秒定時執行的方法
     public String str_level="",str2_rpm="",str3_gps="",str4_x="",str5_y="",str6_z="",web_data="";//接收的LEVEL RPM字串
     private SensorManager sensorMgr; //感測器管理宣告
@@ -53,9 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager mLocationManager;
     private static final int LOCATION_UPDATE_MIN_DISTANCE = 0;//多少距離
     private static final int LOCATION_UPDATE_MIN_TIME = 1000;//多少時間(毫秒)
-
-
-    @Override//
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -64,17 +63,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
         //設定GoogleMap的方法
         mLocationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
         getCurrentLocation();
 
         handler.postDelayed(runnable, 1000);//每2s執行runnable
-
         //取得感應器服務
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
-
-
     }
     //建立監聽(感測)物件並得到數值x,y,z三軸加速度
     SensorEventListener listener =new SensorEventListener() {
@@ -107,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onPause()//離開APP頁面都會執行
     {
         // TODO Auto-generated method stub
-        //取消註冊SensorEventListener  當退出時可讓感測器取消
+        //取消註冊SensorEventListener  當退出時可讓感測器 x ,y ,z取消
         sensorMgr.unregisterListener(listener);
         //mBluetoothGatt.close();
         Toast.makeText(this, "Unregister accelerometerListener", Toast.LENGTH_LONG).show();
@@ -128,8 +123,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             web_data=map_data.getdata7();//抓出網頁的值
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
-            map_level.setText("Level:" +str_level );
-            map_rpm.setText("RPM:" + str2_rpm);
+            if(Integer.valueOf(str_level) ==130) {//Integer.valueOf()將字串轉為十進制才能和130整數比較
+                map_level.setText("Level: --");
+            }else{
+                map_level.setText("Level:" +str_level );
+            }
+            if(Integer.valueOf(str2_rpm) ==130 ){//Integer.valueOf()將字串轉為十進制才能和130整數比較
+                map_rpm.setText("RPM: --");
+            }else{
+                map_rpm.setText("RPM:" + str2_rpm);
+            }
+
             handler.postDelayed(this, 1000);
             //傳送到PHP
             new Thread(new Runnable(){
@@ -190,6 +194,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("測試","分割完以後的字串："+web_data_get);
             map_data.setdata4(web_data_get);//存入全域變數
 
+            //暫時測試 以後會刪掉?
+            LatLng sydney = new LatLng(24.070634,120.715546);//設定座標經緯度
+            mMap_1.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
+            mMap_1.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,15.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
             HttpEntity resEntity = response.getEntity();//判斷是否有回傳?或是連線狀態
@@ -245,7 +253,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,15.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
             } else {
-
                 // Logger.d("Location is null");
                 Toast.makeText(getApplicationContext(), "Location is null", Toast.LENGTH_SHORT).show();
             }
@@ -263,9 +270,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //当所选的Location Provider不可用时调用
         }
     };
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap_1=googleMap;//測試用...之後刪除?
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
