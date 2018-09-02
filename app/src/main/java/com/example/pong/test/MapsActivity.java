@@ -2,9 +2,6 @@ package com.example.pong.test;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -45,9 +42,9 @@ import okhttp3.Response;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    public GoogleMap mMap_1;//其他定位人員?
     private Handler handler = new Handler(); //每秒定時執行的方法
-    public String str_level="",str2_rpm="",str3_gps="",web_data="";//接收的LEVEL RPM字串
+    public String str_level="",str2_rpm="",str3_gps="";//接收的LEVEL RPM字串
+    public String web_data_rec[]=new String[10];//用來儲存網頁收到的資料
     private SensorManager sensorMgr; //感測器管理宣告
     private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
     private double currentLatitude = 0;
@@ -71,9 +68,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         handler.postDelayed(runnable, 1000);//每2s執行runnable
         //取得感應器服務
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
+
     }
     //建立監聽(感測)物件並得到數值x,y,z三軸加速度
-    SensorEventListener listener =new SensorEventListener() {
+    /*SensorEventListener listener =new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
             // TODO Auto-generated method stub
@@ -99,12 +97,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         sensorMgr.registerListener(listener,//註冊監聽
                 sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),//感測器種類(加速度)
                 sensorMgr.SENSOR_DELAY_UI);//更新速度
-    }
+    }*/
     protected void onPause()//離開APP頁面都會執行
     {
         // TODO Auto-generated method stub
         //取消註冊SensorEventListener  當退出時可讓感測器 x ,y ,z取消
-        sensorMgr.unregisterListener(listener);
+
+        //sensorMgr.unregisterListener(listener); //感測器的監聽停止
         //mBluetoothGatt.close();
         Toast.makeText(this, "Unregister accelerometerListener", Toast.LENGTH_LONG).show();
         super.onPause();
@@ -121,9 +120,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             xyz[0]=map_data.getdata4();
             xyz[1]=map_data.getdata5();
             xyz[2]=map_data.getdata6();
-            web_data=map_data.getdata7();//抓出網頁的值
+            //web_data_rec=map_data.getdata7();//抓出網頁的值
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
+            TextView map_level2 = (TextView) findViewById(R.id.text_LEVEL2);
+            TextView map_rpm2 = (TextView) findViewById(R.id.text_RPM2);
+            TextView weather = (TextView) findViewById(R.id.weather);
+
+            weather.setText("天氣:"+web_data_rec[0]+" 溫度:"+web_data_rec[1]+" 風級:"+web_data_rec[2]+
+                    "\n濕度:"+web_data_rec[3] +"  降雨機率:"+web_data_rec[4]);//9,26,30,0,93,30
             Log.d("測試","我進來要顯示LEVEL和RPM了!!!!!"+str_level+str2_rpm);
             if(str_level.equals("130")){//.equals才能比內容 用==是比位址
                 map_level.setText("Level:--" );
@@ -169,9 +174,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String emg;
         emg=level;
         try {
-            String url="https://lab416.hopto.org/?";//http://163.17.21.131/helloword.php/?(校)
+            String url="https://lab416.hopto.org/status.php?";//http://163.17.21.131/helloword.php/?(校)
             //https://lab416.hopto.org/?uuid=106318047&gps=1&rpm=2&emg=3&g=4
-            String url_data=url+"uuid="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg+"&g="+x+"&y="+y+"&z="+z;//Y Z 未接收
+            //https://lab416.hopto.org/status.php?id=106318047
+            String url_data=url+"id="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg+"&g="+x+"&y="+y+"&z="+z;//Y Z 未接收
             Log.d("測試","GET傳送的網址:"+url_data);
             Request request = new Request.Builder()
                     .url(url_data)
@@ -191,11 +197,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Log.d("測試","抓到的網頁內容response.body()："+web_data);
 
-            String web_data_get = web_data.substring(80,95);//指定字串範圍抓出
-            Log.d("測試","網頁內容分割完以後的字串："+web_data_get);
+            String web_data_get = web_data.substring(463,558);//指定字串範圍抓出
+            Log.d("測試","網頁內容分割完以後的字串:"+web_data_get);
             map_data.setdata4(web_data_get);//存入全域變數
 
-
+            web_data_rec[0]=map_data.getdata7(0);//天氣
+            web_data_rec[1]=map_data.getdata7(1);//溫度
+            web_data_rec[2]=map_data.getdata7(2);//風
+            web_data_rec[3]=map_data.getdata7(3);//濕度
+            web_data_rec[4]=map_data.getdata7(4);//降雨機率
+            web_data_rec[5]=map_data.getdata7(5);//緯度
+            web_data_rec[6]=map_data.getdata7(6);//經度
+            Log.d("測試","緯度:"+web_data_rec[5]+"經度:"+web_data_rec[6]);
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
             HttpEntity resEntity = response.getEntity();//判斷是否有回傳?或是連線狀態
@@ -248,11 +261,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map_data.setdata2(str3_gps);//傳送GPS到全域變數
                 Toast.makeText(getApplicationContext(), str3_gps, Toast.LENGTH_SHORT).show();//顯示在畫面上
                 LatLng sydney = new LatLng(location.getLatitude(), location.getLongitude());//設定座標經緯度
-                LatLng latlong = new LatLng(24.159772,120.692855);//設定座標經緯度
+                LatLng latlong = new LatLng(Double.valueOf(web_data_rec[5]),Double.valueOf(web_data_rec[6]));//設定座標經緯度
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
                 mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,15.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,16.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
 
 
                 //mMap_1.clear();
