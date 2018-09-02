@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                         //将设备加入列表数据中
                         deviceList.add(device);
                             String name=device.getName();
-                            if(device.getAddress().equals("D3:30:0F:06:D6:4B") ||device.getAddress().equals("DA:3A:0E:47:21:68")){
+                            if(device.getAddress().equals("D3:30:0F:06:D6:4B") ||device.getAddress().equals("DA:3A:0E:47:21:68")||device.getAddress().equals("EC:4F:61:6F:C2:68")){
                                 name="CYUT_EMG";
                             }
                             deviceName.add(name + "\n" + device.getAddress());
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
              h = Integer.toHexString(arrayOfByte[2] & 0xFF);//Level 把帶入的數字回傳16進制
              h1 = Integer.toHexString(arrayOfByte[3] & 0xFF);//RPM
 
-            Log.e("測試", " H1 收到: " + h+"  H1 收到: "+h1);
+            Log.e("測試", " H1 收到: " + h+"  H2 收到: "+h1);
 
             str=Integer.valueOf(h,16).toString();//應該是將16進制轉成10進制的字串
             str2=Integer.valueOf(h1,16).toString();
@@ -221,11 +221,13 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
     }
     public void receivedata(){
+        GlobalVariable map_data = (GlobalVariable)getApplicationContext();//全域變數設定
         TextView rec_data=(TextView) findViewById(R.id.textView);
         TextView rec_data2=(TextView) findViewById(R.id.textView2);
         //加入判斷如果RPM=130則顯示 " - "號表示不穩定(若不穩定感測器會送130)
             if(Integer.valueOf(str) ==130) {//Integer.valueOf()將字串轉為十進制才能和130整數比較
                 rec_data.setText("Level: --");
+
             }else{
                 rec_data.setText("Level: " + str);
             }
@@ -234,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 rec_data2.setText("RPM: " + str2);
             }
-        GlobalVariable map_data = (GlobalVariable)getApplicationContext();//全域變數設定
+
             map_data.setdata(str,str2);//傳送level 和 Rpm到全域變數
     }
     /*****************************離開頁面關閉掃描****************************************/

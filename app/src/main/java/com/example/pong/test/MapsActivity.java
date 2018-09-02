@@ -22,6 +22,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -44,9 +45,9 @@ import okhttp3.Response;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private GoogleMap mMap_1;//其他定位人員?
+    public GoogleMap mMap_1;//其他定位人員?
     private Handler handler = new Handler(); //每秒定時執行的方法
-    public String str_level="",str2_rpm="",str3_gps="",str4_x="",str5_y="",str6_z="",web_data="";//接收的LEVEL RPM字串
+    public String str_level="",str2_rpm="",str3_gps="",web_data="";//接收的LEVEL RPM字串
     private SensorManager sensorMgr; //感測器管理宣告
     private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
     private double currentLatitude = 0;
@@ -123,18 +124,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             web_data=map_data.getdata7();//抓出網頁的值
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
-            if(Integer.valueOf(str_level) ==130) {//Integer.valueOf()將字串轉為十進制才能和130整數比較
-                map_level.setText("Level: --");
+            Log.d("測試","我進來要顯示LEVEL和RPM了!!!!!"+str_level+str2_rpm);
+            if(str_level.equals("130")){//.equals才能比內容 用==是比位址
+                map_level.setText("Level:--" );
             }else{
                 map_level.setText("Level:" +str_level );
             }
-            if(Integer.valueOf(str2_rpm) ==130 ){//Integer.valueOf()將字串轉為十進制才能和130整數比較
-                map_rpm.setText("RPM: --");
-            }else{
+            if(str2_rpm.equals("130")){
+                map_rpm.setText("RPM:--");
+            }else {
                 map_rpm.setText("RPM:" + str2_rpm);
             }
-
             handler.postDelayed(this, 1000);
+
             //傳送到PHP
             new Thread(new Runnable(){
                 @Override
@@ -144,7 +146,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //str2_rpm="999";//暫用
                         //str3_gps="24.159455,120 .693808";//暫用
                         str3_gps=str3_gps.replace(" ","");//去除空格
-
                     doPostRequest(str_level,str2_rpm,str3_gps,xyz[0],xyz[1],xyz[2]);//好像是新執行續才能啟動傳送
                     } catch (Exception e) {
                         Log.d("測試","錯誤?");
@@ -164,11 +165,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mBuilder.hostnameVerifier(new TrustAllHostnameVerifier());
 
        OkHttpClient client = mBuilder.build(); //okhttp3函數庫(build.gradle加入 compile 'com.squareup.okhttp3:okhttp:3.6.0')
-        String id = "106318047",result="";
+        String id = "106318047",id2="102310036",result="";
         String emg;
         emg=level;
         try {
-            String url="https://lab416.hopto.org/?";// http://121.254.77.25:8080/helloword.php/? http://163.17.21.131/helloword.php/?(校)
+            String url="https://lab416.hopto.org/?";//http://163.17.21.131/helloword.php/?(校)
             //https://lab416.hopto.org/?uuid=106318047&gps=1&rpm=2&emg=3&g=4
             String url_data=url+"uuid="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg+"&g="+x+"&y="+y+"&z="+z;//Y Z 未接收
             Log.d("測試","GET傳送的網址:"+url_data);
@@ -188,16 +189,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             GlobalVariable map_data = (GlobalVariable)getApplicationContext();//建立全域變數物件
             String web_data=response.body().string();//抓到回傳的網頁資料,注意response.body()只能執行一次不然跑不出來
 
-            Log.d("測試","response.body().string(!!!!!!!!)："+web_data);
+            Log.d("測試","抓到的網頁內容response.body()："+web_data);
 
             String web_data_get = web_data.substring(80,95);//指定字串範圍抓出
-            Log.d("測試","分割完以後的字串："+web_data_get);
+            Log.d("測試","網頁內容分割完以後的字串："+web_data_get);
             map_data.setdata4(web_data_get);//存入全域變數
 
-            //暫時測試 以後會刪掉?
-            LatLng sydney = new LatLng(24.070634,120.715546);//設定座標經緯度
-            mMap_1.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
-            mMap_1.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,15.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
+
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
             HttpEntity resEntity = response.getEntity();//判斷是否有回傳?或是連線狀態
@@ -250,8 +248,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map_data.setdata2(str3_gps);//傳送GPS到全域變數
                 Toast.makeText(getApplicationContext(), str3_gps, Toast.LENGTH_SHORT).show();//顯示在畫面上
                 LatLng sydney = new LatLng(location.getLatitude(), location.getLongitude());//設定座標經緯度
+                LatLng latlong = new LatLng(24.159772,120.692855);//設定座標經緯度
+                mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
+                mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,15.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
+
+
+                //mMap_1.clear();
+                //LatLng latlong = new LatLng(24.159772,120.692855);//設定座標經緯度
+                //mMap_1.addMarker(new MarkerOptions().position(latlong).title("您的位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                //藍色座標名稱
+                //mMap_1.moveCamera(CameraUpdateFactory.newLatLngZoom(latlong,15.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
             } else {
                 // Logger.d("Location is null");
                 Toast.makeText(getApplicationContext(), "Location is null", Toast.LENGTH_SHORT).show();
@@ -260,10 +268,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onStatusChanged(String s, int i, Bundle bundle) {
             //当状态发生改变时调用
+            Log.d("測試","當狀態發生改變跑來這");
         }
         @Override
         public void onProviderEnabled(String s) {
             //当所选的Location Provider可用时调用
+            Log.d("測試","當能提供位置功能時跑來這");
         }
         @Override
         public void onProviderDisabled(String s) {
@@ -275,7 +285,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap_1=googleMap;//測試用...之後刪除?
+
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
