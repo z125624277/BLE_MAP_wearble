@@ -47,6 +47,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public String web_data_rec[]=new String[10];//用來儲存網頁收到的資料
     private SensorManager sensorMgr; //感測器管理宣告
     private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
+    public double Lat,Long;
     private double currentLatitude = 0;
     private double currentLongitude = 0;
     private LocationManager mLocationManager;
@@ -128,7 +129,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             TextView weather = (TextView) findViewById(R.id.weather);
 
             weather.setText("天氣:"+web_data_rec[0]+" 溫度:"+web_data_rec[1]+" 風級:"+web_data_rec[2]+
-                    "\n濕度:"+web_data_rec[3] +"  降雨機率:"+web_data_rec[4]);//9,26,30,0,93,30
+                    "\n濕度:"+web_data_rec[3]+"%"+"  降雨機率:"+web_data_rec[4]+"%");//9,26,30,0,93,30
             Log.d("測試","我進來要顯示LEVEL和RPM了!!!!!"+str_level+str2_rpm);
             if(str_level.equals("130")){//.equals才能比內容 用==是比位址
                 map_level.setText("Level:--" );
@@ -188,10 +189,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (!response.isSuccessful()) throw new IOException("測試傳送錯誤Unexpected code " + response);//判斷請求是否成功
 
             Headers responseHeaders = response.headers();
-            for (int i = 0; i < responseHeaders.size(); i++) {
+            /*for (int i = 0; i < responseHeaders.size(); i++) {
                 //System.out.println("測試responseHeaders.name:"+responseHeaders.name(i) + ": " + responseHeaders.value(i));
                //顯示網頁類型、時間、編碼方式等等
-            }
+            }*/
             GlobalVariable map_data = (GlobalVariable)getApplicationContext();//建立全域變數物件
             String web_data=response.body().string();//抓到回傳的網頁資料,注意response.body()只能執行一次不然跑不出來
 
@@ -208,7 +209,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             web_data_rec[4]=map_data.getdata7(4);//降雨機率
             web_data_rec[5]=map_data.getdata7(5);//緯度
             web_data_rec[6]=map_data.getdata7(6);//經度
-            Log.d("測試","緯度:"+web_data_rec[5]+"經度:"+web_data_rec[6]);
+
+            Lat=Double.valueOf(web_data_rec[5]);//把緯度帶入浮點數
+            Long=Double.valueOf(web_data_rec[6]);
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
             HttpEntity resEntity = response.getEntity();//判斷是否有回傳?或是連線狀態
@@ -261,7 +264,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map_data.setdata2(str3_gps);//傳送GPS到全域變數
                 Toast.makeText(getApplicationContext(), str3_gps, Toast.LENGTH_SHORT).show();//顯示在畫面上
                 LatLng sydney = new LatLng(location.getLatitude(), location.getLongitude());//設定座標經緯度
-                LatLng latlong = new LatLng(Double.valueOf(web_data_rec[5]),Double.valueOf(web_data_rec[6]));//設定座標經緯度
+                LatLng latlong = new LatLng(Lat,Long);//設定座標經緯度
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
                 mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
