@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean  mScanning=true;//判斷掃描狀態布林變數
     private ArrayAdapter<String> deviceName;
     public BluetoothGatt mBluetoothGatt=null;
-    public String str="",str2="";
+    public String str="",str2="",bleAddress_re="";
     public int i=0;         //給掃描到的裝置暫存給vData[i]
     public String[] vData =new String[100];//給掃描到的裝置暫存資料
     private static final String serviceid = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";//0000AAAA-0000-1000-8000-00805f9b34fb //6e400001-b5a3-f393-e0a9-e50e24dcca9e
@@ -103,10 +103,11 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("測試", String.valueOf(position));
                             // mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索 ~關閉掃描~~
                             String bleAddress =vData[position];//要連接的裝置~要能依照listview的選擇而變
+                            bleAddress_re=bleAddress;
                             BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress);
                             show("嘗試連接...:"+vData[position]);
                             /************************啟動連接*************************************/
-                            mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,false,mGattCallback);//啟動連接
+                            mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,true,mGattCallback);//啟動連接
                             Log.d("測試:","進入連接藍芽call back!");
                         }
                     });
@@ -138,6 +139,8 @@ public class MainActivity extends AppCompatActivity {
                     mBluetoothGatt.discoverServices();//執行onServicesDiscovered
                 } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                     Log.d("測試:", "斷開連接" + newState);
+                    BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress_re);//重新連接
+                    mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,false,mGattCallback);//啟動連接
                 }
             }
         }

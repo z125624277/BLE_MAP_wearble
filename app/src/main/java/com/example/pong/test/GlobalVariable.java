@@ -9,7 +9,7 @@ public class GlobalVariable extends Application {
     //GlobalVariable繼承 Application
     public String level="",rpm="",gps="",web_data="";     //要傳送的字串
     public Float x=0.0f,y=0.0f,z=0.0f;
-    public String[] web=new String[10];
+    public String[] web=new String[17];
     //修改 變數字串
     public void setdata(String word,String word2){
         this.level = word;
@@ -51,9 +51,10 @@ public class GlobalVariable extends Application {
         return z;
     }
     public String getdata7(int a){
-        web[0]=web_data.substring(80,81);//天氣狀況
+
+        web[0]=web_data.substring(82,84);//天氣狀況
         web[1]=web_data.substring(82,84);//溫度
-        web[2]=web_data.substring(88,89);//風
+        web[2]=web_data.substring(88,89);//風 XX
         web[3]=web_data.substring(90,92);//濕度
         web[4]=web_data.substring(93,95);//降雨
         web[5]=web_data.substring(57,67);//緯度

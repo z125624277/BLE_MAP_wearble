@@ -35,7 +35,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -44,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Handler handler = new Handler(); //每秒定時執行的方法
     public String str_level="",str2_rpm="",str3_gps="";//接收的LEVEL RPM字串
-    public String web_data_rec[]=new String[10];//用來儲存網頁收到的資料
+    public String web_data_rec[]=new String[20];//用來儲存網頁收到的資料
     private SensorManager sensorMgr; //感測器管理宣告
     private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
     public double Lat,Long;
@@ -104,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // TODO Auto-generated method stub
         //取消註冊SensorEventListener  當退出時可讓感測器 x ,y ,z取消
 
-        //sensorMgr.unregisterListener(listener); //感測器的監聽停止
+        //sensorMgr.unregisterListener(listener); //感測器的監聽停止(x,y,z)
         //mBluetoothGatt.close();
         Toast.makeText(this, "Unregister accelerometerListener", Toast.LENGTH_LONG).show();
         super.onPause();
@@ -124,22 +123,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //web_data_rec=map_data.getdata7();//抓出網頁的值
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
-            TextView map_level2 = (TextView) findViewById(R.id.text_LEVEL2);
+            TextView map_level2 = (TextView) findViewById(R.id.text_LEVEL2);//第二位人員資料
             TextView map_rpm2 = (TextView) findViewById(R.id.text_RPM2);
-            TextView weather = (TextView) findViewById(R.id.weather);
+            TextView weather = (TextView) findViewById(R.id.weather);//天氣資訊
 
-            weather.setText("天氣:"+web_data_rec[0]+" 溫度:"+web_data_rec[1]+" 風級:"+web_data_rec[2]+
-                    "\n濕度:"+web_data_rec[3]+"%"+"  降雨機率:"+web_data_rec[4]+"%");//9,26,30,0,93,30
+            weather.setText("天氣:"+web_data_rec[14]+"     溫度:"+web_data_rec[15]+"°C"+
+                    "\n濕度:"+web_data_rec[16]+"%"+" 降雨機率:"+web_data_rec[17]+"%");
+
             Log.d("測試","我進來要顯示LEVEL和RPM了!!!!!"+str_level+str2_rpm);
             if(str_level.equals("130")){//.equals才能比內容 用==是比位址
-                map_level.setText("Level:--" );
+                map_level.setText("Level:--");
+                map_level2.setText("Level:--");
             }else{
                 map_level.setText("Level:" +str_level );
+                map_level2.setText("Level:" +web_data_rec[13]);
             }
             if(str2_rpm.equals("130")){
                 map_rpm.setText("RPM:--");
+                map_rpm2.setText("RPM:--");
             }else {
                 map_rpm.setText("RPM:" + str2_rpm);
+                map_rpm2.setText("RPM:" +web_data_rec[12]);
             }
             handler.postDelayed(this, 1000);
 
@@ -175,10 +179,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String emg;
         emg=level;
         try {
-            String url="https://lab416.hopto.org/status.php?";//http://163.17.21.131/helloword.php/?(校)
-            //https://lab416.hopto.org/?uuid=106318047&gps=1&rpm=2&emg=3&g=4
-            //https://lab416.hopto.org/status.php?id=106318047
-            String url_data=url+"id="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg+"&g="+x+"&y="+y+"&z="+z;//Y Z 未接收
+            String url="https://lab416.hopto.org/?";//http://163.17.21.131/helloword.php/?(校)
+            //https://lab416.hopto.org/?uuid=106318047&gps=24.0454186,120.6872071&rpm=1&emg=2
+            String url_data=url+"uuid="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg;//目前xyz先不傳
             Log.d("測試","GET傳送的網址:"+url_data);
             Request request = new Request.Builder()
                     .url(url_data)
@@ -188,8 +191,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("測試","GET回傳是否順利連線200成功，404未找到："+response);
             if (!response.isSuccessful()) throw new IOException("測試傳送錯誤Unexpected code " + response);//判斷請求是否成功
 
-            Headers responseHeaders = response.headers();
-            /*for (int i = 0; i < responseHeaders.size(); i++) {
+            /*Headers responseHeaders = response.headers();
+            for (int i = 0; i < responseHeaders.size(); i++) {
                 //System.out.println("測試responseHeaders.name:"+responseHeaders.name(i) + ": " + responseHeaders.value(i));
                //顯示網頁類型、時間、編碼方式等等
             }*/
@@ -198,20 +201,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Log.d("測試","抓到的網頁內容response.body()："+web_data);
 
-            String web_data_get = web_data.substring(463,558);//指定字串範圍抓出
+            String web_data_get = web_data.substring(483,578);//指定字串範圍抓出
             Log.d("測試","網頁內容分割完以後的字串:"+web_data_get);
             map_data.setdata4(web_data_get);//存入全域變數
+            web_data_rec=web_data_get.split(",");//遇到逗號就分割
 
-            web_data_rec[0]=map_data.getdata7(0);//天氣
-            web_data_rec[1]=map_data.getdata7(1);//溫度
-            web_data_rec[2]=map_data.getdata7(2);//風
-            web_data_rec[3]=map_data.getdata7(3);//濕度
-            web_data_rec[4]=map_data.getdata7(4);//降雨機率
-            web_data_rec[5]=map_data.getdata7(5);//緯度
-            web_data_rec[6]=map_data.getdata7(6);//經度
-
-            Lat=Double.valueOf(web_data_rec[5]);//把緯度帶入浮點數
-            Long=Double.valueOf(web_data_rec[6]);
+            Lat=Double.valueOf(web_data_rec[10]);//把緯度帶入浮點數
+            Long=Double.valueOf(web_data_rec[11]);
+           //web_data_rec[0]=map_data.getdata7(0);//天氣
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
             HttpEntity resEntity = response.getEntity();//判斷是否有回傳?或是連線狀態
@@ -264,7 +261,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map_data.setdata2(str3_gps);//傳送GPS到全域變數
                 Toast.makeText(getApplicationContext(), str3_gps, Toast.LENGTH_SHORT).show();//顯示在畫面上
                 LatLng sydney = new LatLng(location.getLatitude(), location.getLongitude());//設定座標經緯度
-                LatLng latlong = new LatLng(Lat,Long);//設定座標經緯度
+                LatLng latlong = new LatLng(24.070719, 120.715580);//設定座標經緯度 Lat Long  24.073373, 120.715190
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
                 mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
