@@ -139,8 +139,6 @@ public class MainActivity extends AppCompatActivity {
                     mBluetoothGatt.discoverServices();//執行onServicesDiscovered
                 } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                     Log.d("測試:", "斷開連接" + newState);
-                    BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress_re);//重新連接
-                    mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,false,mGattCallback);//啟動連接
                 }
             }
         }

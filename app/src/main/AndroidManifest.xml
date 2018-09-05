@@ -3,9 +3,10 @@
     package="com.example.pong.test">
 
     <uses-feature
-        android:name="android.bluetooth.le"
+        android:name="android.hardware.bluetooth_le"
         android:required="true" />
-    <!-- 5.0以下的配置<uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/> -->
+    <!-- 5.0以下的配置<uses-feature android:name="android.hardware.bluetooth_le"
+      或5.0以上 "android.bluetooth.le"  android:required="true"/> -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

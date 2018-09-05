@@ -43,9 +43,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Handler handler = new Handler(); //每秒定時執行的方法
     public String str_level="",str2_rpm="",str3_gps="";//接收的LEVEL RPM字串
-    public String web_data_rec[]=new String[20];//用來儲存網頁收到的資料
+    public String web_data_rec[]=new String[]{(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),("")};//用來儲存網頁收到的資料
     private SensorManager sensorMgr; //感測器管理宣告
-    private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
+    //private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
     public double Lat,Long;
     private double currentLatitude = 0;
     private double currentLongitude = 0;
@@ -67,7 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         handler.postDelayed(runnable, 1000);//每2s執行runnable
         //取得感應器服務
-        sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
+        //sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
 
     }
     //建立監聽(感測)物件並得到數值x,y,z三軸加速度
@@ -90,14 +90,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
             //感測器精準度改變時會呼叫此方法
         }
-    };
+    };*/
     @Override
     protected void onResume(){//當頁面離開再回來會執行此方法來刷新
         super.onResume();
-        sensorMgr.registerListener(listener,//註冊監聽
-                sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),//感測器種類(加速度)
-                sensorMgr.SENSOR_DELAY_UI);//更新速度
-    }*/
+        //sensorMgr.registerListener(listener,//註冊監聽
+                //sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),//感測器種類(加速度)
+                //sensorMgr.SENSOR_DELAY_UI);//更新速度
+        Log.d("測試","正在onResume()中~~~~~~~");
+    }
     protected void onPause()//離開APP頁面都會執行
     {
         // TODO Auto-generated method stub
@@ -105,6 +106,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //sensorMgr.unregisterListener(listener); //感測器的監聽停止(x,y,z)
         //mBluetoothGatt.close();
+        Log.d("測試","正在onPause() 暫停中~~~~~~~");
         Toast.makeText(this, "Unregister accelerometerListener", Toast.LENGTH_LONG).show();
         super.onPause();
     }
@@ -113,13 +115,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Runnable runnable=new Runnable() {
         @Override
         public void run() {
+            Log.d("測試","正進入定時執行接收!!!!!!");
             GlobalVariable map_data = (GlobalVariable)getApplicationContext();
             str_level = map_data.getdata();
             str2_rpm=map_data.getdata2();
             str3_gps=map_data.getdata3();
-            xyz[0]=map_data.getdata4();
-            xyz[1]=map_data.getdata5();
-            xyz[2]=map_data.getdata6();
             //web_data_rec=map_data.getdata7();//抓出網頁的值，暫時沒用
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
@@ -133,18 +133,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if(str_level.equals("130")){//.equals才能比內容 用==是比位址
                 map_level.setText("Level:--");
-                //map_level2.setText("Level:--");
             }else{
                 map_level.setText("Level:" +str_level );
-                //map_level2.setText("Level:" +web_data_rec[13]);
             }
             if(str2_rpm.equals("130")){
                 map_rpm.setText("RPM:--");
-                //map_rpm2.setText("RPM:--");
             }else {
                 map_rpm.setText("RPM:" + str2_rpm);
-                //map_rpm2.setText("RPM:" +web_data_rec[12]);
             }
+            if(web_data_rec[13].equals("130")){
+                map_level2.setText("Level:--");
+            }else{
+                map_level2.setText("Level:" +web_data_rec[13]);
+            }
+            if(web_data_rec[12].equals("130")){
+                map_rpm2.setText("RPM:--");
+            }else {
+               map_rpm2.setText("RPM:" +web_data_rec[12]);
+            }
+
             handler.postDelayed(this, 1000);
 
             //傳送到PHP
@@ -156,7 +163,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //str2_rpm="999";//暫用
                         //str3_gps="24.159455,120 .693808";//暫用
                         str3_gps=str3_gps.replace(" ","");//去除空格
-                    doPostRequest(str_level,str2_rpm,str3_gps,xyz[0],xyz[1],xyz[2]);//好像是新執行續才能啟動傳送
+                    doPostRequest(str_level,str2_rpm,str3_gps);//好像是新執行續才能啟動傳送
                     } catch (Exception e) {
                         Log.d("測試","錯誤?");
                         e.printStackTrace();
@@ -166,7 +173,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     };
 
     //傳到PHP的方法 再執行續裡面被呼叫
-    private void doPostRequest(String level,String rpm,String gps,Float x,Float y,Float z) {
+    private void doPostRequest(String level,String rpm,String gps) {
         //HttpClient httpClient = new DefaultHttpClient();
 
         //沒經過驗證 就可以傳資料(方法在下方)!
@@ -201,7 +208,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Log.d("測試","抓到的網頁內容response.body()："+web_data);
 
-            String web_data_get = web_data.substring(483,578);//指定字串範圍抓出
+            String web_data_get = web_data.substring(483,577);//指定字串範圍抓出
             Log.d("測試","網頁內容分割完以後的字串:"+web_data_get);
             map_data.setdata4(web_data_get);//存入全域變數
             web_data_rec=web_data_get.split(",");//遇到逗號就分割，存成字串陣列
@@ -230,24 +237,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (!(isGPSEnabled || isNetworkEnabled)) {
             // location_provider error
         } else {
-            if (isNetworkEnabled) {
+            if (isNetworkEnabled) {//isGPSEnabled  isNetworkEnabled
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     //類似檢查憑證
+                    Log.d("測試","檢查定位憑證!!!!!!!....");
                     return;
                 }
                 Toast.makeText(getApplicationContext(), "啟用網路定位", Toast.LENGTH_SHORT).show();
                 mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_UPDATE_MIN_TIME,
                         LOCATION_UPDATE_MIN_DISTANCE, mLocationListener);//會呼叫mLocationListener
                 location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            } else if (isGPSEnabled) {
+                Log.d("測試","網路定位!!!!!!!....");
+            }
+            if (isGPSEnabled) {
                 Toast.makeText(getApplicationContext(), "啟用GPS定位", Toast.LENGTH_SHORT).show();
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_MIN_TIME,
                         LOCATION_UPDATE_MIN_DISTANCE, mLocationListener);
                 location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Log.d("測試","GPS的定位!!!!!!!....");
             }
         }
         if (location != null) {
-            Log.d("location",String.format("getCurrentLocation(%f, %f)", location.getLatitude(), location.getLongitude()));
+            Log.d("測試",String.format("定位錯誤..getCurrentLocation(%f, %f)", location.getLatitude(), location.getLongitude()));
         }
     }
     //被呼叫的位置訊息
@@ -256,6 +267,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onLocationChanged(Location location) {
             //当位置更新时调用，并传入 对应的Location对象
             if (location != null) {
+                Log.d("測試","定位中!!!!!!!....");
                 str3_gps = String.format("%f, %f", location.getLatitude(), location.getLongitude());//獲得經(Longitude)緯(Latitude)度
                 GlobalVariable map_data = (GlobalVariable)getApplicationContext();//全域變數設定
                 map_data.setdata2(str3_gps);//傳送GPS到全域變數
@@ -267,12 +279,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,16.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
 
-
-                //mMap_1.clear();
-                //LatLng latlong = new LatLng(24.159772,120.692855);//設定座標經緯度
-                //mMap_1.addMarker(new MarkerOptions().position(latlong).title("您的位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                //藍色座標名稱
-                //mMap_1.moveCamera(CameraUpdateFactory.newLatLngZoom(latlong,15.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
             } else {
                 // Logger.d("Location is null");
                 Toast.makeText(getApplicationContext(), "Location is null", Toast.LENGTH_SHORT).show();
