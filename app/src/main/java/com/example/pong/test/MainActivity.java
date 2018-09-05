@@ -227,10 +227,11 @@ public class MainActivity extends AppCompatActivity {
         GlobalVariable map_data = (GlobalVariable)getApplicationContext();//全域變數設定
         TextView rec_data=(TextView) findViewById(R.id.textView);
         TextView rec_data2=(TextView) findViewById(R.id.textView2);
+
+
         //加入判斷如果RPM=130則顯示 " - "號表示不穩定(若不穩定感測器會送130)
             if(Integer.valueOf(str) ==130) {//Integer.valueOf()將字串轉為十進制才能和130整數比較
                 rec_data.setText("Level: --");
-
             }else{
                 rec_data.setText("Level: " + str);
             }

@@ -120,30 +120,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             xyz[0]=map_data.getdata4();
             xyz[1]=map_data.getdata5();
             xyz[2]=map_data.getdata6();
-            //web_data_rec=map_data.getdata7();//抓出網頁的值
+            //web_data_rec=map_data.getdata7();//抓出網頁的值，暫時沒用
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
             TextView map_level2 = (TextView) findViewById(R.id.text_LEVEL2);//第二位人員資料
             TextView map_rpm2 = (TextView) findViewById(R.id.text_RPM2);
             TextView weather = (TextView) findViewById(R.id.weather);//天氣資訊
 
-            weather.setText("天氣:"+web_data_rec[14]+"     溫度:"+web_data_rec[15]+"°C"+
-                    "\n濕度:"+web_data_rec[16]+"%"+" 降雨機率:"+web_data_rec[17]+"%");
+            weather.setText("天氣:"+web_data_rec[5]+"     溫度:"+web_data_rec[6]+"°C"+//14 15 16 17
+                    "\n濕度:"+web_data_rec[7]+"%"+" 降雨機率:"+web_data_rec[8]+"%");
 
-            Log.d("測試","我進來要顯示LEVEL和RPM了!!!!!"+str_level+str2_rpm);
+
             if(str_level.equals("130")){//.equals才能比內容 用==是比位址
                 map_level.setText("Level:--");
-                map_level2.setText("Level:--");
+                //map_level2.setText("Level:--");
             }else{
                 map_level.setText("Level:" +str_level );
-                map_level2.setText("Level:" +web_data_rec[13]);
+                //map_level2.setText("Level:" +web_data_rec[13]);
             }
             if(str2_rpm.equals("130")){
                 map_rpm.setText("RPM:--");
-                map_rpm2.setText("RPM:--");
+                //map_rpm2.setText("RPM:--");
             }else {
                 map_rpm.setText("RPM:" + str2_rpm);
-                map_rpm2.setText("RPM:" +web_data_rec[12]);
+                //map_rpm2.setText("RPM:" +web_data_rec[12]);
             }
             handler.postDelayed(this, 1000);
 
@@ -204,11 +204,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String web_data_get = web_data.substring(483,578);//指定字串範圍抓出
             Log.d("測試","網頁內容分割完以後的字串:"+web_data_get);
             map_data.setdata4(web_data_get);//存入全域變數
-            web_data_rec=web_data_get.split(",");//遇到逗號就分割
+            web_data_rec=web_data_get.split(",");//遇到逗號就分割，存成字串陣列
 
             Lat=Double.valueOf(web_data_rec[10]);//把緯度帶入浮點數
             Long=Double.valueOf(web_data_rec[11]);
-           //web_data_rec[0]=map_data.getdata7(0);//天氣
+
             /*HttpGet request = new HttpGet(url_data);
             HttpResponse response = httpClient.execute(request);
             HttpEntity resEntity = response.getEntity();//判斷是否有回傳?或是連線狀態
@@ -261,7 +261,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map_data.setdata2(str3_gps);//傳送GPS到全域變數
                 Toast.makeText(getApplicationContext(), str3_gps, Toast.LENGTH_SHORT).show();//顯示在畫面上
                 LatLng sydney = new LatLng(location.getLatitude(), location.getLongitude());//設定座標經緯度
-                LatLng latlong = new LatLng(24.070719, 120.715580);//設定座標經緯度 Lat Long  24.073373, 120.715190
+                LatLng latlong = new LatLng(Lat, Long);//設定座標經緯度 Lat Long  24.073373, 120.715190
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
                 mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
