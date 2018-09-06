@@ -7,9 +7,9 @@ import android.app.Application;
  */
 public class GlobalVariable extends Application {
     //GlobalVariable繼承 Application
-    public String level="",rpm="",gps="",web_data="";     //要傳送的字串
+    public String level="",rpm="",gps="";     //要傳送的字串
     public Float x=0.0f,y=0.0f,z=0.0f;
-    public String[] web=new String[20];
+    public String[] web=new String[]{(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),("")};
     //修改 變數字串
     public void setdata(String word,String word2){
         this.level = word;
@@ -23,8 +23,8 @@ public class GlobalVariable extends Application {
         this.y = y;
         this.z = z;
     }
-    public void setdata4(String word4){
-        this.web_data = word4;
+    public void setdata4(String[] word4){
+        this.web = word4;
     }
     //顯示 (取出)變數字串
     public String getdata() {
@@ -41,7 +41,7 @@ public class GlobalVariable extends Application {
         return gps;
         }
     }
-    public Float getdata4(){
+    /*public Float getdata4(){
         return x;
     }
     public Float getdata5(){
@@ -49,16 +49,13 @@ public class GlobalVariable extends Application {
     }
     public Float getdata6(){
         return z;
-    }
+    }*/
     public String getdata7(int a){
         //這裡暫時沒有把天氣資訊取出
-        web[0]=web_data.substring(82,84);//天氣狀況
-        web[1]=web_data.substring(82,84);//溫度
-        web[2]=web_data.substring(88,89);//風 XX
-        web[3]=web_data.substring(90,92);//濕度
-        web[4]=web_data.substring(93,95);//降雨
-        web[5]=web_data.substring(57,67);//緯度
-        web[6]=web_data.substring(68,79);//經度
+        if(web[a].equals("0") || web[a].equals("1"))  web[a]="晴天";
+        if(web[a].equals("2") || web[a].equals("3")|| web[a].equals("4"))  web[a]="多雲";
+        if(web[a].equals("5") || web[a].equals("6"))  web[a]="陰天";
+        if(web[a].equals("7") || web[a].equals("8")|| web[a].equals("9"))  web[a]="陣雨";
         return web[a];
     }
 }

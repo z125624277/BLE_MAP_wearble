@@ -43,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Handler handler = new Handler(); //每秒定時執行的方法
     public String str_level="",str2_rpm="",str3_gps="";//接收的LEVEL RPM字串
-    public String web_data_rec[]=new String[]{(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),("")};//用來儲存網頁收到的資料
+    public String web_data_rec[]=new String[]{(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),(""),("")};//用來儲存網頁收到的資料
     private SensorManager sensorMgr; //感測器管理宣告
     //private float xyz[] = new float[3]; //宣告暫存的感測器xyz數值
     public double Lat,Long;
@@ -120,14 +120,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             str_level = map_data.getdata();
             str2_rpm=map_data.getdata2();
             str3_gps=map_data.getdata3();
-            //web_data_rec=map_data.getdata7();//抓出網頁的值，暫時沒用
+
             TextView map_level = (TextView) findViewById(R.id.text_LEVEL);
             TextView map_rpm = (TextView) findViewById(R.id.text_RPM);
             TextView map_level2 = (TextView) findViewById(R.id.text_LEVEL2);//第二位人員資料
             TextView map_rpm2 = (TextView) findViewById(R.id.text_RPM2);
             TextView weather = (TextView) findViewById(R.id.weather);//天氣資訊
 
-            weather.setText("天氣:"+web_data_rec[5]+"     溫度:"+web_data_rec[6]+"°C"+//14 15 16 17
+
+            weather.setText("天氣:"+map_data.getdata7(5)+"     溫度:"+web_data_rec[6]+"°C"+//14 15 16 17
                     "\n濕度:"+web_data_rec[7]+"%"+" 降雨機率:"+web_data_rec[8]+"%");
 
 
@@ -152,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                map_rpm2.setText("RPM:" +web_data_rec[12]);
             }
 
-            handler.postDelayed(this, 1000);
+            handler.postDelayed(this, 2000);
 
             //傳送到PHP
             new Thread(new Runnable(){
@@ -182,7 +183,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mBuilder.hostnameVerifier(new TrustAllHostnameVerifier());
 
        OkHttpClient client = mBuilder.build(); //okhttp3函數庫(build.gradle加入 compile 'com.squareup.okhttp3:okhttp:3.6.0')
-        String id = "106318047",id2="102310036",result="";
+        String id = "106318047",id2="102310036";
         String emg;
         emg=level;
         try {
@@ -192,7 +193,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("測試","GET傳送的網址:"+url_data);
             Request request = new Request.Builder()
                     .url(url_data)
-                    .get()
+                    /*.get()*/
                     .build();
             Response response = client.newCall(request).execute();//請求並獲得回應(同步execute)
             Log.d("測試","GET回傳是否順利連線200成功，404未找到："+response);
@@ -210,7 +211,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             String web_data_get = web_data.substring(483,577);//指定字串範圍抓出
             Log.d("測試","網頁內容分割完以後的字串:"+web_data_get);
-            map_data.setdata4(web_data_get);//存入全域變數
+            map_data.setdata4(web_data_get.split(","));//遇到逗號就分割，存入全域變數
+
             web_data_rec=web_data_get.split(",");//遇到逗號就分割，存成字串陣列
 
             Lat=Double.valueOf(web_data_rec[10]);//把緯度帶入浮點數
@@ -224,6 +226,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 result = EntityUtils.toString(resEntity);//應該是如果有回傳就...
                 Log.d("測試","GET回傳="+result);
             }*/
+
         } catch (Exception e) {
             Log.d("測試","GET有問題！！！有問題！！！！！！");
             e.printStackTrace();
@@ -283,6 +286,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // Logger.d("Location is null");
                 Toast.makeText(getApplicationContext(), "Location is null", Toast.LENGTH_SHORT).show();
             }
+
         }
         @Override
         public void onStatusChanged(String s, int i, Bundle bundle) {
