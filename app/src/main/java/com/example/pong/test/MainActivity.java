@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             str=Integer.valueOf(h,16).toString();//應該是將16進制轉成10進制的字串
             str2=Integer.valueOf(h1,16).toString();
 
-            Log.e("測試", " str 收到: " + str+"  str2 收到: "+ str2);
+            Log.d("測試", " str 收到: " + str+"  str2 收到: "+ str2);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

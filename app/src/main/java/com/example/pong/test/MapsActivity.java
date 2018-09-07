@@ -126,7 +126,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             TextView map_level2 = (TextView) findViewById(R.id.text_LEVEL2);//第二位人員資料
             TextView map_rpm2 = (TextView) findViewById(R.id.text_RPM2);
             TextView weather = (TextView) findViewById(R.id.weather);//天氣資訊
+            TextView speed = (TextView) findViewById(R.id.speed);//時速1
+            TextView speed2 = (TextView) findViewById(R.id.speed2);//時速2
 
+            speed.setText("時速:"+web_data_rec[18]);
+            speed2.setText("時速:"+web_data_rec[19]);
+            //for(int i=0;i<web_data_rec.length;i++){Log.d("測試","web_data_rec["+i+"]="+web_data_rec[i]);}
 
             weather.setText("天氣:"+map_data.getdata7(5)+"     溫度:"+web_data_rec[6]+"°C"+//14 15 16 17
                     "\n濕度:"+web_data_rec[7]+"%"+" 降雨機率:"+web_data_rec[8]+"%");
@@ -209,7 +214,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Log.d("測試","抓到的網頁內容response.body()："+web_data);
 
-            String web_data_get = web_data.substring(483,577);//指定字串範圍抓出
+            String web_data_get = web_data.substring(483,595);//指定字串範圍抓出
             Log.d("測試","網頁內容分割完以後的字串:"+web_data_get);
             map_data.setdata4(web_data_get.split(","));//遇到逗號就分割，存入全域變數
 
