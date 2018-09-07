@@ -158,7 +158,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                map_rpm2.setText("RPM:" +web_data_rec[12]);
             }
 
-            handler.postDelayed(this, 2000);
+            handler.postDelayed(this, 3100);
 
             //傳送到PHP
             new Thread(new Runnable(){
