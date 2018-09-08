@@ -2,6 +2,7 @@ package com.example.pong.test;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,11 +23,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -39,7 +43,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-
+    public ArrayList<LatLng> traceOfMe; //紀錄軌跡
+    Boolean map_route_judge=true;
     private GoogleMap mMap;
     private Handler handler = new Handler(); //每秒定時執行的方法
     public String str_level="",str2_rpm="",str3_gps="";//接收的LEVEL RPM字串
@@ -133,7 +138,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             speed2.setText("時速:"+web_data_rec[19]);
             //for(int i=0;i<web_data_rec.length;i++){Log.d("測試","web_data_rec["+i+"]="+web_data_rec[i]);}
 
-            weather.setText("天氣:"+map_data.getdata7(5)+"     溫度:"+web_data_rec[6]+"°C"+//14 15 16 17
+            weather.setText("天氣:"+map_data.getdata7(5)+"   溫度:"+web_data_rec[6]+"°C"+
                     "\n濕度:"+web_data_rec[7]+"%"+" 降雨機率:"+web_data_rec[8]+"%");
 
 
@@ -165,9 +170,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void run() {
                     try {
-                        //str_level="100";//暫用
-                        //str2_rpm="999";//暫用
-                        //str3_gps="24.159455,120 .693808";//暫用
                         str3_gps=str3_gps.replace(" ","");//去除空格
                     doPostRequest(str_level,str2_rpm,str3_gps);//好像是新執行續才能啟動傳送
                     } catch (Exception e) {
@@ -275,18 +277,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onLocationChanged(Location location) {
             //当位置更新时调用，并传入 对应的Location对象
             if (location != null) {
+
                 Log.d("測試","定位中!!!!!!!....");
                 str3_gps = String.format("%f, %f", location.getLatitude(), location.getLongitude());//獲得經(Longitude)緯(Latitude)度
                 GlobalVariable map_data = (GlobalVariable)getApplicationContext();//全域變數設定
-                map_data.setdata2(str3_gps);//傳送GPS到全域變數
+                map_data.setdata2(str3_gps);//傳送GPS到全域變數，為了讓位置傳送到後端
                 Toast.makeText(getApplicationContext(), str3_gps, Toast.LENGTH_SHORT).show();//顯示在畫面上
                 LatLng sydney = new LatLng(location.getLatitude(), location.getLongitude());//設定座標經緯度
                 LatLng latlong = new LatLng(Lat, Long);//設定座標經緯度 Lat Long  24.073373, 120.715190
                 mMap.clear();
+                trackToMe(location.getLatitude(),location.getLongitude());
+
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
                 mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,16.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
-
             } else {
                 // Logger.d("Location is null");
                 Toast.makeText(getApplicationContext(), "Location is null", Toast.LENGTH_SHORT).show();
@@ -313,7 +317,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        //在地圖上可顯示為一個小藍點  mMap.setMyLocationEnabled(true);
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
@@ -325,6 +329,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //Intent i=new Intent(MapsActivity.this, MainActivity.class);
                 //startActivity(i);
                 finish();
+                break;
+            case R.id.map_route:
+                if(map_route_judge==true){
+                    mLocationManager.removeUpdates(mLocationListener);//停止定位
+                    handler.removeCallbacks(runnable);//停止定時執行(不會傳資料到後端+顯示暫停)
+                    PolylineOptions polylineOpt = new PolylineOptions();
+                    for (LatLng latlng : traceOfMe) {
+                        polylineOpt.add(latlng);
+                    }
+                    polylineOpt.color(Color.RED);
+                    Polyline line = mMap.addPolyline(polylineOpt);
+                    line.setWidth(10);
+                    Toast.makeText(this, "路線", Toast.LENGTH_SHORT).show();
+                    map_route_judge=false;
+                }else{
+                    Toast.makeText(this, "重啟", Toast.LENGTH_SHORT).show();
+                    handler.postDelayed(runnable, 1000);//每2s執行runnable (傳送資料到後端+顯示)
+                    getCurrentLocation();//重新開啟定位
+                    map_route_judge=true;
+                }
+
+
                 break;
         }
     }
@@ -355,5 +381,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return ssfFactory;
     }
     //讓SSL驗證全部信任的方法
+
+    private void trackToMe(double lat, double lng){
+        Log.d("測試","我進來紀錄軌跡的函式了");
+        if (traceOfMe == null) {
+            traceOfMe = new ArrayList<LatLng>();
+        }
+        traceOfMe.add(new LatLng(lat, lng));
+        /*PolylineOptions polylineOpt = new PolylineOptions();
+        for (LatLng latlng : traceOfMe) {
+            polylineOpt.add(latlng);
+        }
+        polylineOpt.color(Color.RED);
+        Polyline line = mMap.addPolyline(polylineOpt);
+        line.setWidth(10);*/
+    }
 
 }
