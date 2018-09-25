@@ -55,7 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private double currentLatitude = 0;
     private double currentLongitude = 0;
     private LocationManager mLocationManager;
-    private static final int LOCATION_UPDATE_MIN_DISTANCE = 0;//多少距離
+    private static final int LOCATION_UPDATE_MIN_DISTANCE = 1;//多少距離
     private static final int LOCATION_UPDATE_MIN_TIME = 1000;//多少時間(毫秒)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +102,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //sensorMgr.registerListener(listener,//註冊監聽
                 //sensorMgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),//感測器種類(加速度)
                 //sensorMgr.SENSOR_DELAY_UI);//更新速度
-        Log.d("測試","正在onResume()中~~~~~~~");
+        //handler.postDelayed(runnable, 1000);//每2s執行runnable
+        Log.d("測試","正在onResume()中~~~~~~~+恢復連線");
     }
     protected void onPause()//離開APP頁面都會執行
     {
@@ -111,7 +112,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //sensorMgr.unregisterListener(listener); //感測器的監聽停止(x,y,z)
         //mBluetoothGatt.close();
-        Log.d("測試","正在onPause() 暫停中~~~~~~~");
+        //handler.removeCallbacks(runnable);//停止定時執行(不會傳資料到後端+顯示暫停)
+        Log.d("測試","正在onPause() 暫停中~~~~~~~+停止連線");
         Toast.makeText(this, "Unregister accelerometerListener", Toast.LENGTH_LONG).show();
         super.onPause();
     }
@@ -163,7 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                map_rpm2.setText("RPM:" +web_data_rec[12]);
             }
 
-            handler.postDelayed(this, 3100);
+            handler.postDelayed(this, 2500);
 
             //傳送到PHP
             new Thread(new Runnable(){

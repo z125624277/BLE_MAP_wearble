@@ -8,6 +8,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,25 +53,84 @@ public class MainActivity extends AppCompatActivity {
         /*************************取得Adapter初始設定*************************************/
         bluetoothManager=(BluetoothManager) getSystemService(MainActivity.this.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-        /*************************判斷藍芽是否開啟並主動開啟*************************************/
+        /*************************判斷藍芽是否開啟並跑出訊息詢問開啟*************************************/
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
         show("藍芽已開啟!");
         /*************************藍芽開始掃描************************************************/
-        scanLeDevice(mScanning);
+        scanLeDevice(mScanning);//這邊會先判斷是否開啟中，沒有的話則開始掃
     }
+
+
+    // BLE 5.0+版本-----------------------------------------
+    private ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            Log.d("測試:","callbackType："+callbackType+"  result："+result);
+            // callbackType：确定这个回调是如何触发的
+            // result：包括4.3版本的蓝牙信息，信号强度rssi，和广播数据scanRecord
+
+            Log.d("測試:","搜尋中");
+
+            ListView listview = (ListView) findViewById(R.id.listview);
+            if (!deviceList.contains(result)) {
+                //将设备加入列表数据中
+                deviceList.add(result);
+                String name=result.getName();
+                if(result.getAddress().equals("D3:30:0F:06:D6:4B") ||result.getAddress().equals("DA:3A:0E:47:21:68")||device.getAddress().equals("EC:4F:61:6F:C2:68")){
+                    name="CYUT_EMG";
+                }
+                deviceName.add(name + "\n" + result.getAddress());
+                vData[i] = result.getAddress();
+                i++;
+            }
+            listview.setAdapter(deviceName);
+            //以下獲取listview的點擊
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parnet, android.view.View v, final int position, long id) {
+                    Log.d("測試","deviceName: "+vData[position]);
+                    Log.d("測試", String.valueOf(position));
+                    // mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索 ~關閉掃描~~
+                    String bleAddress =vData[position];//要連接的裝置~要能依照listview的選擇而變
+                    bleAddress_re=bleAddress;           //bleAddress_re 應該是用來儲存之後重連MAC 地址
+                    BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress);
+                    show("嘗試連接...:"+vData[position]);
+                    /************************啟動連接*************************************/
+                    mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,true,mGattCallback);//啟動連接
+                    Log.d("測試:","進入連接藍芽call back!");
+                }
+            });
+        }
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+            // 批量回调，一般不推荐使用，使用上面那个会更灵活
+        }
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            // 扫描失败，并且失败原因
+        }
+    };
+    //-----------------------------------------------------
     private void scanLeDevice(final boolean enable) {
         show("開始掃描");
+        BluetoothLeScanner scaner = mBluetoothAdapter.getBluetoothLeScanner();  // android5.0把扫描方法单独弄成一个对象了
         if (enable) {
             mScanning = true;
-            mBluetoothAdapter.startLeScan(mLeScanCallback); //开始搜索
+
+            scaner.startScan(mScanCallback);  // 开始扫描 5.0以上 ，SDK需在21以上
+            //mBluetoothAdapter.startLeScan(mLeScanCallback); //开始搜索 安卓5.0以下
             Log.d("測試:","開始搜尋");
             deviceName = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1);
         }else {
             mScanning = false;
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索
+            //mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索
+            scaner.stopScan(mScanCallback);   // 停止扫描 5.0以上
         }
     }
 
@@ -111,16 +173,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("測試:","進入連接藍芽call back!");
                         }
                     });
-                    //以下暫時用不到................
                     //(黃傑 DA 3A 0E 47 21 68)(學弟的D3 30 0F 06 D6 4B)  //00:08:F4:01:8A:12舊的
-                    /*if(device.getAddress().equals("DA:3A:0E:47:21:68")==true ) {
-                        String bleAddress = device.getAddress();//要連接的裝置~要能依照listview的選擇而變
-                        mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止掃描
-                        BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress);
-                        //*************************************啟動連接************************************
-                       mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,false,mGattCallback);//啟動連接
-                       Log.d("測試:","進入連接藍芽call back!");
-                    }*/
                 }
             });
         }

@@ -6,7 +6,7 @@ android {
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "com.example.pong.test"
-        minSdkVersion 19//18
+        minSdkVersion 21//18
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
