@@ -9,8 +9,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,15 +63,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     // BLE 5.0+版本-----------------------------------------
-    private ScanCallback mScanCallback = new ScanCallback() {
+   /* private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             Log.d("測試:","callbackType："+callbackType+"  result："+result);
             // callbackType：确定这个回调是如何触发的
             // result：包括4.3版本的蓝牙信息，信号强度rssi，和广播数据scanRecord
-
-            Log.d("測試:","搜尋中");
 
             ListView listview = (ListView) findViewById(R.id.listview);
             if (!deviceList.contains(result)) {
@@ -99,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                     bleAddress_re=bleAddress;           //bleAddress_re 應該是用來儲存之後重連MAC 地址
                     BluetoothDevice mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bleAddress);
                     show("嘗試連接...:"+vData[position]);
-                    /************************啟動連接*************************************/
+                    //啟動連接
                     mBluetoothGatt = mBluetoothDevice.connectGatt(MainActivity.this,true,mGattCallback);//啟動連接
                     Log.d("測試:","進入連接藍芽call back!");
                 }
@@ -116,21 +112,21 @@ public class MainActivity extends AppCompatActivity {
             // 扫描失败，并且失败原因
         }
     };
+    */
     //-----------------------------------------------------
     private void scanLeDevice(final boolean enable) {
         show("開始掃描");
         BluetoothLeScanner scaner = mBluetoothAdapter.getBluetoothLeScanner();  // android5.0把扫描方法单独弄成一个对象了
         if (enable) {
             mScanning = true;
-
-            scaner.startScan(mScanCallback);  // 开始扫描 5.0以上 ，SDK需在21以上
-            //mBluetoothAdapter.startLeScan(mLeScanCallback); //开始搜索 安卓5.0以下
+            //scaner.startScan(mScanCallback);  // 开始扫描 5.0以上 ，SDK需在21以上
+            mBluetoothAdapter.startLeScan(mLeScanCallback); //开始搜索 安卓5.0以下
             Log.d("測試:","開始搜尋");
             deviceName = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1);
         }else {
             mScanning = false;
-            //mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索
-            scaner.stopScan(mScanCallback);   // 停止扫描 5.0以上
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止搜索
+            //scaner.stopScan(mScanCallback);   // 停止扫描 5.0以上
         }
     }
 
@@ -183,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
             // 當連線或斷線將會進到這裡
-
             super.onConnectionStateChange(gatt, status, newState);
             if(status == BluetoothGatt.GATT_SUCCESS){//GATT_SUCCESS=0才成功
                 Log.d("測試:", "還沒服務!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:"+status+"連線狀態:"+newState);

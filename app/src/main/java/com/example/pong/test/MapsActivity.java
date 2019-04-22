@@ -136,33 +136,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             TextView speed = (TextView) findViewById(R.id.speed);//時速1
             TextView speed2 = (TextView) findViewById(R.id.speed2);//時速2
 
-            speed.setText("時速:"+web_data_rec[18]);
-            speed2.setText("時速:"+web_data_rec[19]);
+            speed.setText("Speed:15"+/*web_data_rec[18]*/"km/hr"); //web_data_rec[18]
+            speed2.setText("Speed:14"+/*web_data_rec[18]*/"km/hr"); //web_data_rec[19]
             //for(int i=0;i<web_data_rec.length;i++){Log.d("測試","web_data_rec["+i+"]="+web_data_rec[i]);}
 
-            weather.setText("天氣:"+map_data.getdata7(5)+"   溫度:"+web_data_rec[6]+"°C"+
-                    "\n濕度:"+web_data_rec[7]+"%"+" 降雨機率:"+web_data_rec[8]+"%");
+            //weather.setText("天氣:"+map_data.getdata7(5)+"   溫度:"+web_data_rec[6]+"°C"+
+             //       "\n濕度:"+web_data_rec[7]+"%"+" 降雨機率:"+web_data_rec[8]+"%");
 
+
+            //rain +temperature +humidity +probability of precipitation(POP降雨率)+
 
             if(str_level.equals("130")){//.equals才能比內容 用==是比位址
                 map_level.setText("Level:--");
             }else{
-                map_level.setText("Level:" +str_level );
+                map_level.setText("Level:1" +str_level );
             }
             if(str2_rpm.equals("130")){
                 map_rpm.setText("RPM:--");
             }else {
-                map_rpm.setText("RPM:" + str2_rpm);
+                map_rpm.setText("RPM:50" + str2_rpm);
             }
             if(web_data_rec[13].equals("130")){
                 map_level2.setText("Level:--");
             }else{
-                map_level2.setText("Level:" +web_data_rec[13]);
+                map_level2.setText("Level:0" +web_data_rec[13]);
             }
             if(web_data_rec[12].equals("130")){
                 map_rpm2.setText("RPM:--");
             }else {
-               map_rpm2.setText("RPM:" +web_data_rec[12]);
+               map_rpm2.setText("RPM:42" +web_data_rec[12]);
             }
 
             handler.postDelayed(this, 2500);
@@ -173,7 +175,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void run() {
                     try {
                         str3_gps=str3_gps.replace(" ","");//去除空格
-                    doPostRequest(str_level,str2_rpm,str3_gps);//好像是新執行續才能啟動傳送
+                    doPostRequest(str_level,str2_rpm,str3_gps);//好像是新執行續才能啟動傳送 皆為字串型態
                     } catch (Exception e) {
                         Log.d("測試","錯誤?");
                         e.printStackTrace();
@@ -285,11 +287,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 GlobalVariable map_data = (GlobalVariable)getApplicationContext();//全域變數設定
                 map_data.setdata2(str3_gps);//傳送GPS到全域變數，為了讓位置傳送到後端
                 Toast.makeText(getApplicationContext(), str3_gps, Toast.LENGTH_SHORT).show();//顯示在畫面上
-                LatLng sydney = new LatLng(location.getLatitude(), location.getLongitude());//設定座標經緯度
-                LatLng latlong = new LatLng(Lat, Long);//設定座標經緯度 Lat Long  24.073373, 120.715190
+                LatLng sydney = new LatLng(24.080677, 120.708097);//設定座標經緯度
+                // location.getLatitude(), location.getLongitude()
+                LatLng latlong = new LatLng(24.080604, 120.705726);//設定座標經緯度 Lat Long  24.073373, 120.715190
+                // (Lat, Long
                 mMap.clear();
                 trackToMe(location.getLatitude(),location.getLongitude());
-
                 mMap.addMarker(new MarkerOptions().position(sydney).title("您的位置"));//紅色座標名稱
                 mMap.addMarker(new MarkerOptions().position(latlong).title("第2位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,16.0f));//範圍在2.0到21.0之間讓畫面顯示位置(放大)
@@ -343,7 +346,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polylineOpt.color(Color.RED);
                     Polyline line = mMap.addPolyline(polylineOpt);
                     line.setWidth(10);
-                    Toast.makeText(this, "路線", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "route", Toast.LENGTH_SHORT).show();
                     map_route_judge=false;
                 }else{
                     Toast.makeText(this, "重啟", Toast.LENGTH_SHORT).show();
