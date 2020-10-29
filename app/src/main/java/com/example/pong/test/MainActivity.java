@@ -169,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("測試:","進入連接藍芽call back!");
                         }
                     });
-                    //(黃傑 DA 3A 0E 47 21 68)(學弟的D3 30 0F 06 D6 4B)  //00:08:F4:01:8A:12舊的
                 }
             });
         }
