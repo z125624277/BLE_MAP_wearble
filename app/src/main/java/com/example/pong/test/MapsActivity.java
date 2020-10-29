@@ -198,9 +198,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String emg;
         emg=level;
         try {
-            String url="https://lab416.hopto.org/?";//http://163.17.21.131/helloword.php/?(校)
-            //https://lab416.hopto.org/?uuid=106318047&gps=24.0454186,120.6872071&rpm=1&emg=2
-            String url_data=url+"uuid="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg;//目前xyz先不傳
+            String url="https://lab416.hopto.org/?";
+            
+            String url_data=url+"uuid="+id+"&gps="+gps+"&rpm="+rpm+"&emg="+emg;
             Log.d("測試","GET傳送的網址:"+url_data);
             Request request = new Request.Builder()
                     .url(url_data)
